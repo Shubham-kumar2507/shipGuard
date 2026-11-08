@@ -1,0 +1,25 @@
+# Contributor guide
+
+## Build, test, and lint
+
+- Install development dependencies: `python -m pip install -e ".[dev]"`.
+- Run the test suite: `pytest -q`.
+- Run the linter: `ruff check .`.
+- Build the container: `docker build -t {{ service_name }}:local .`.
+- Run the container: `docker run --rm -p 8000:8000 {{ service_name }}:local`.
+- Verify health: `curl http://localhost:8000/health`.
+
+## Code style
+
+- Use Python 3.12 or newer, type hints, and focused functions.
+- Keep runtime dependencies pinned in `requirements.txt`.
+- Keep tests deterministic and independent of network access.
+- Format Python with Ruff's configured style and line length.
+
+## What never to touch
+
+- Do not commit credentials, tokens, or real secrets.
+- Do not weaken CI, container hardening, or health checks to make a change pass.
+- Do not run the service as root in the container.
+- Do not change the `/health` response contract without updating its tests and
+  dependent health checks.

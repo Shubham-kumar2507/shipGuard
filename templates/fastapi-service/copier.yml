@@ -1,0 +1,17 @@
+_min_copier_version: "9.0.0"
+_subdirectory: template
+
+service_name:
+  type: str
+  help: Service name (lowercase kebab-case)
+  default: sample-service
+
+service_description:
+  type: str
+  help: A short description of the service
+  default: A small FastAPI service
+
+maintainer:
+  type: str
+  help: Team or person responsible for the service
+  default: Service maintainers

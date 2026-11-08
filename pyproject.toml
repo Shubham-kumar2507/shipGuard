@@ -1,19 +1,49 @@
 [build-system]
-requires = ["setuptools>=61.0.0"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling==1.26.3"]
+build-backend = "hatchling.build"
 
 [project]
-name = "my-project"
+name = "shipguard"
 version = "0.1.0"
-description = "A clean Python project setup with CI"
+description = "Security and policy gates for pull requests"
 readme = "README.md"
-requires-python = ">=3.10"
-dependencies = []
+requires-python = ">=3.12"
+dependencies = [
+    "typer==0.28.0",
+    "pydantic==2.14.3",
+    "pyyaml==6.0.3",
+    "httpx==0.28.1",
+    "rich==15.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.2.0",
+    "pytest-cov==7.1.0",
+    "ruff==0.17.4",
+    "respx==0.23.1",
+    "copier==9.19.1",
+]
+app = [
+    "fastapi==0.162.2",
+    "uvicorn[standard]==0.54.0",
+    "pyjwt[crypto]==2.15.1",
+]
+
+[project.scripts]
+shipguard = "shipguard.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/shipguard"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py310"
+target-version = "py312"
+
+[tool.ruff.lint.isort]
+known-first-party = ["shipguard", "app"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+markers = ["integration: tests that invoke external tools"]

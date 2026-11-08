@@ -1,0 +1,60 @@
+name: ShipGuard reusable workflow
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  shipguard:
+    name: ShipGuard checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+
+      - name: Install project
+        run: python -m pip install -e ".[dev,app]"
+
+      - name: Run Ruff
+        run: ruff check .
+
+      - name: Run tests
+        run: pytest -q
+
+      - name: Generate CycloneDX SBOM
+        run: >-
+          docker run --rm
+          --volume "${{ github.workspace }}:/workspace"
+          anchore/syft:v1.20.0@sha256:b46e597614ddc78621e560af3fabf9346e35462ea1c886a38b30bcc7ca601a73
+          scan dir:/workspace
+          --output cyclonedx-json=/workspace/shipguard-sbom.cdx.json
+          --quiet
+          --exclude '**/.git/**'
+          --exclude '**/.venv/**'
+          --exclude '**/venv/**'
+
+      - name: Test Rego policies
+        run: >-
+          docker run --rm
+          --volume "${{ github.workspace }}:/workspace"
+          openpolicyagent/opa:1.0.0@sha256:c0609fecc0924743f8648dc4a035d2f57ca163dc723ed1d13f3197ba5bd122b3
+          test /workspace/policies --verbose
+
+      - name: Run ShipGuard
+        shell: bash
+        run: shipguard check --repo . --format text | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload SBOM artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: shipguard-sbom
+          path: shipguard-sbom.cdx.json
+          if-no-files-found: error

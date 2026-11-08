@@ -1,0 +1,15 @@
+version: 1
+fail_on: high
+checkers:
+  secrets:
+    enabled: false
+  vulnerabilities:
+    enabled: false
+  sbom:
+    enabled: false
+  pinning:
+    enabled: true
+  policy:
+    enabled: false
+policy:
+  enabled: false

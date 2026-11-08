@@ -1,0 +1,24 @@
+# {{ service_name }}
+
+{{ service_description }}
+
+Maintainer: {{ maintainer }}
+
+## Local development
+
+```bash
+python -m pip install -e ".[dev]"
+uvicorn app.main:app --reload
+```
+
+The health endpoint is available at <http://127.0.0.1:8000/health>.
+
+## Checks
+
+```bash
+ruff check .
+pytest -q
+docker build -t {{ service_name }}:local .
+```
+
+The container uses a pinned Python base image and runs as an unprivileged user.

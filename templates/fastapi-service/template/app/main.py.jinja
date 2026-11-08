@@ -1,0 +1,9 @@
+from fastapi import FastAPI
+
+app = FastAPI(title="{{ service_name }}", description="{{ service_description }}")
+
+
+@app.get("/health")
+def health() -> dict[str, str]:
+    """Return the service health status."""
+    return {"status": "ok"}
